@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -11,10 +9,20 @@ public class GameController : MonoBehaviour {
 
     public Camera mainCamera;
     public Cannon cannon;
+    public LevelController levelController;
 
     private int ballsLanded = 0;
     public int ballsPerDrop = 3;
     public float heightDropped = 1.0f;
+    public float maxHeightDropped = 7.0f;
+    private float totalHeightDropped = 0f;
+
+    private float GameOverHeight {
+        get {
+            return cannon.launchLocation.position.y;
+        }
+    }
+
 
     public static BallController LiveBall;
 
@@ -29,18 +37,37 @@ public class GameController : MonoBehaviour {
     private void Awake()
     {
         BallController.OnBallLanded += DropCeiling;
+        BallController.OnBallLanded += CheckBallHeight;
 
         DebugObjectPool = debugObjectPoolReference;
     }
 
-    private void DropCeiling()
+    private void DropCeiling(BallController ball)
     {
         ballsLanded++;
-        if(ballsLanded % ballsPerDrop == 0)
+        if(ballsLanded % ballsPerDrop == 0 && totalHeightDropped < maxHeightDropped)
         {
             mainCamera.transform.position += new Vector3(0, heightDropped, 0);
+            totalHeightDropped += heightDropped;
+
+            if (totalHeightDropped > maxHeightDropped) {
+                float diff = totalHeightDropped - maxHeightDropped;
+                mainCamera.transform.position += new Vector3(0, -diff, 0);
+                totalHeightDropped = maxHeightDropped;
+            }
         }
     }
+
+    private void CheckBallHeight(BallController ball) {
+        if (ball.transform.position.y < GameOverHeight) {
+            EndGame();
+        }
+    }
+
+    private void EndGame() {
+        levelController.LoadNextLevel();
+    }
+
 
     private void FixedUpdate()
     {

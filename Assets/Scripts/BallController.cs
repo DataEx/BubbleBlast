@@ -23,7 +23,7 @@ public class BallController : MonoBehaviour
 
     bool hasAppliedForce = false;
 
-    public delegate void BallLanded();
+    public delegate void BallLanded(BallController ball);
     public static event BallLanded OnBallLanded;
 
     bool isDropping = false;
@@ -112,7 +112,7 @@ public class BallController : MonoBehaviour
             {
 
                 Cannon.RealBallInTransit = false;
-                OnBallLanded();
+                OnBallLanded(this);
                 GameController.LiveBall = null;
             }
         }

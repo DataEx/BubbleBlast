@@ -56,6 +56,7 @@ public class Cannon : MonoBehaviour {
 
     // Update is called once per frame
     void Update () {
+
         float deltaTime = Time.deltaTime;
 
         rotatedThisFrame = false;
